@@ -38,6 +38,7 @@ export default function ProductsPage() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tout");
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -98,72 +99,34 @@ export default function ProductsPage() {
 
   return (
     <AuroraBackground>
-      
-      <motion.nav
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="fixed top-0 left-0 right-0 z-20 py-4 bg-black/20 backdrop-blur-lg border-b border-white/10"
-        >
-          <div className="container mx-auto px-6 flex justify-between items-center">
-            <Link href="/" className="flex items-center" aria-label="Accueil YallaClean">
-              <Image
-                src="/96539f82-301e-4773-9046-8111bea17b62.webp"
-                alt="Logo YallaClean"
-                width={52}
-                height={52}
-                priority
-                className="h-13 w-13 rounded-full object-cover drop-shadow-lg"
-              />
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="px-4 py-2 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300">
-                Se connecter
-              </Link>
-              <Link href="/signup" className="bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-6 py-2 rounded-full font-semibold hover:from-sky-400 hover:to-emerald-400 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                S'inscrire
-              </Link>
-            </div>
-          </div>
-        </motion.nav>
-
-      <main className="relative z-10 container mx-auto px-6 pt-32 pb-16">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-4 bg-gradient-to-r from-sky-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
-            Nos Produits & Services
+      <main className="relative z-10 container mx-auto px-6 py-24">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-sky-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent drop-shadow-xl">
+            Découvrez Nos Produits
           </h1>
-          <p className="text-lg text-white/70 text-center max-w-3xl mx-auto mb-12">
-            Explorez notre catalogue complet. Qualité et soin garantis pour tous vos articles.
-          </p>
-        </motion.div>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto">Des solutions de nettoyage professionnelles pour un quotidien impeccable.</p>
+        </div>
 
-        <div className="sticky top-24 z-10 bg-gray-900/50 backdrop-blur-xl p-4 rounded-2xl border border-white/10 mb-12">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
-              <input
-                type="text"
-                placeholder="Rechercher un service..."
-                className="w-full bg-black/20 border border-white/10 rounded-full py-3 pl-12 pr-4 text-white placeholder-white/40 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex-shrink-0 flex items-center gap-2 overflow-x-auto pb-2 -mb-2">
-              {categories.map((category, index) => (
-                <button
-                  key={`${category}-${index}`}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                    selectedCategory === category
-                      ? 'bg-gradient-to-r from-sky-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-black/20 text-white/60 hover:bg-black/40 hover:text-white'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+        <div className="mb-10">
+          <div className="relative max-w-lg mx-auto mb-6">
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-black/30 border-2 border-white/20 rounded-full py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:border-sky-500 transition-colors"
+            />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" />
+          </div>
+          <div className="flex justify-center items-center gap-2 flex-wrap">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300 ${selectedCategory === category ? 'bg-sky-500 text-white shadow-lg' : 'bg-black/30 text-white/60 hover:bg-white/10'}`}>
+                {category}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -211,15 +174,21 @@ export default function ProductsPage() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          // In a real app, you'd dispatch an action to add to cart
-                          console.log(`Added ${product.nomProduit} to cart`);
-                          alert(`${product.nomProduit} a été ajouté au panier!`);
+                          const cart = JSON.parse(localStorage.getItem('panier') || '[]');
+                          const existingProduct = cart.find((item: Product) => item._id === product._id);
+                          if (existingProduct) {
+                            existingProduct.quantity += 1;
+                          } else {
+                            cart.push({ ...product, quantity: 1 });
+                          }
+                          localStorage.setItem('panier', JSON.stringify(cart));
+                          setToast({ message: `${product.nomProduit} a été ajouté au panier!`, visible: true });
+                          setTimeout(() => setToast({ message: '', visible: false }), 3000);
                         }}
-                        className={`w-full py-2 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
-                          product.quantiteStock === 0
+                        className={`w-full py-2 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${product.quantiteStock === 0
                             ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                             : 'bg-gradient-to-r from-sky-500 to-emerald-500 text-white hover:from-sky-400 hover:to-emerald-400 transform hover:scale-105 shadow-lg'
-                        }`}
+                          }`}
                       >
                         <FiShoppingCart />
                         {product.quantiteStock === 0 ? 'Indisponible' : 'Ajouter au panier'}
@@ -237,6 +206,16 @@ export default function ProductsPage() {
           )}
         </motion.div>
       </main>
+      {toast.visible && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg z-50"
+        >
+          {toast.message}
+        </motion.div>
+      )}
     </AuroraBackground>
   );
 }

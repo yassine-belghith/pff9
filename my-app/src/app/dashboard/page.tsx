@@ -76,36 +76,6 @@ export default function ClientDashboard() {
 
   return (
     <>
-      {/* Top Navbar */}
-      <nav className="fixed top-0 left-0 right-0 bg-black/30 backdrop-blur-lg border-b border-white/10 z-20 h-16 flex items-center">
-        <div className="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-            Yalla Clean
-          </Link>
-
-          {/* Desktop links */}
-          <div className="hidden md:flex space-x-6 text-sm">
-            <Link href="/services" className="text-gray-300 hover:text-pink-400 transition-colors">
-              Services
-            </Link>
-            <Link href="/products" className="text-gray-300 hover:text-pink-400 transition-colors">
-              Produits
-            </Link>
-            <Link href="/dashboard/reservations" className="text-gray-300 hover:text-pink-400 transition-colors">
-              Mes réservations
-            </Link>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="bg-red-500/80 hover:bg-red-600/90 text-white px-3 py-1 rounded-md text-sm shadow"
-          >
-            Déconnexion
-          </button>
-        </div>
-      </nav>
-
       <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white pt-24 p-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">

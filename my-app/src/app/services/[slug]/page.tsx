@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { FiArrowLeft, FiUser, FiUserCheck, FiSmile, FiHome, FiArchive, FiRefreshCw, FiPlus, FiMinus, FiDroplet, FiActivity } from "react-icons/fi";
 import React from "react";
@@ -80,10 +80,18 @@ export default function CategoryDetails() {
   }, [slug]);
 
   // compute subcategories for current slug
-
-  const subcategories = allSubcategories[slug] || allSubcategories["nettoyage"];
+  const subcategories = useMemo(() => {
+    return allSubcategories[slug] || allSubcategories["nettoyage"];
+  }, [slug]);
 
   const [active, setActive] = useState<string>(subcategories[0]?.key || "");
+
+  // Reset active subcategory when the main category (slug) changes
+  useEffect(() => {
+    if (subcategories.length > 0) {
+      setActive(subcategories[0].key);
+    }
+  }, [subcategories]);
   const [cart, setCart] = useState<Record<string, number>>({});
 
   const addItem = (name: string) => {
